@@ -280,10 +280,6 @@
     }
     .modal-close:hover{color:var(--text)}
     .modal-body{overflow-y:auto;padding:24px 24px 28px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-    .modal-screenshot{
-      width:100%;max-height:340px;object-fit:contain;
-      background:#060e1e;border-radius:4px;margin-bottom:20px;display:block;
-    }
     .modal-desc{color:#94a3b8;font-size:13.5px;line-height:1.75}
     .modal-desc p{margin-bottom:10px}
     .modal-desc h4{font-size:12px;font-family:'Fira Code',monospace;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin:16px 0 8px}
@@ -291,6 +287,58 @@
     .modal-desc ul li{margin-bottom:6px;padding-left:14px;position:relative}
     .modal-desc ul li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-size:10px;top:3px}
     .modal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+
+    /* ── GALLERY (mini image player) ── */
+    .gallery{margin-bottom:22px}
+    .gal-stage{
+      position:relative;width:100%;
+      aspect-ratio:16/10;max-height:380px;
+      background:#060e1e;
+      border:1px solid var(--border);border-radius:6px;
+      overflow:hidden;user-select:none;touch-action:pan-y;
+    }
+    .gal-img{
+      width:100%;height:100%;object-fit:contain;display:block;
+      transition:opacity .2s ease;
+    }
+    .gal-img.swap{opacity:0}
+    .gal-btn{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:36px;height:36px;border-radius:50%;
+      background:rgba(2,6,23,0.7);
+      border:1px solid var(--border);color:var(--text);
+      font-family:'Fira Code',monospace;font-size:16px;line-height:1;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:border-color .2s,color .2s,background .2s;
+    }
+    .gal-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(2,6,23,0.9)}
+    .gal-btn.prev{left:10px}
+    .gal-btn.next{right:10px}
+    .gal-count{
+      position:absolute;right:10px;bottom:10px;
+      font-family:'Fira Code',monospace;font-size:11px;color:var(--accent2);
+      background:rgba(2,6,23,0.75);border:1px solid var(--border);
+      padding:2px 8px;border-radius:3px;
+    }
+    .gal-thumbs{
+      display:flex;gap:8px;margin-top:10px;
+      overflow-x:auto;padding-bottom:4px;
+      scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+    }
+    .gal-thumb{
+      flex:0 0 auto;width:84px;height:54px;
+      border:1px solid var(--border);border-radius:4px;
+      overflow:hidden;cursor:pointer;background:#060e1e;
+      opacity:.55;transition:opacity .2s,border-color .2s;padding:0;
+    }
+    .gal-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .gal-thumb:hover{opacity:.9}
+    .gal-thumb.active{opacity:1;border-color:var(--accent);box-shadow:0 0 8px rgba(80,180,255,0.35)}
+
+    @media (max-width:640px){
+      .content{padding:24px 18px 80px}
+      .gal-thumb{width:68px;height:44px}
+    }
   </style>
 </head>
 <body>
@@ -336,7 +384,7 @@
 
     <div class="section" id="sec-about"><div class="section-title" data-i18n="nav.about">About Me</div>
       <div class="about-grid">
-        <div class="photo-box"> <img src="Captura de ecrã 2026-03-26, às 20.13.20.png" alt="Profile Picture" width="120%" height="auto"> <div class="photo-label">Gonçalo</div> </div>
+        <div class="photo-box"> <img src="Captura de ecrã 2026-03-26, às 20.13.20.png" alt="Profile Picture" width="120%" height="auto"> <div class="photo-label">Gonçalo</div> </div>
         <div class="about-text">
           <h1>Gonçalo Duarte</h1>
           <div class="about-role" data-i18n="about.role">// Developer &amp; Creator</div>
@@ -403,10 +451,24 @@
     <div class="section" id="sec-projects"><div class="section-title" data-i18n="nav.projects">Projects</div>
       <div class="projects-grid">
 
+        <!-- StintLab -->
+        <div class="proj-card" onclick="openModal('stintlab')" style="cursor:pointer">
+          <div class="proj-icon-wrap">
+            <img src="stintlab-logo.png" alt="Logo StintLab" width="100" height="auto" style="border-radius:22px">
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">StintLab</div>
+            <div class="proj-desc" data-i18n="proj.stintlab.desc">Real-time race engineering tool for Gran Turismo 7. Turns live telemetry into strategy insights: fuel, tyres and pit stops.</div>
+            <div class="proj-tags">
+              <span class="tag">Electron</span><span class="tag">Python</span><span class="tag">UDP</span><span class="tag">WebSocket</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Morph Browser -->
         <div class="proj-card" onclick="openModal('morph')" style="cursor:pointer">
           <div class="proj-icon-wrap">
-            <img src="eclipselogo (1).png" alt="Logo Morph" width="100" height="auto">
+            <img src="morph/logo.png" alt="Logo Morph" width="100" height="auto" style="border-radius:22px">
           </div>
           <div class="proj-body">
             <div class="proj-title">Morph Browser</div>
@@ -606,6 +668,7 @@ const TRANSLATIONS = {
     'about.role': '// Developer & Creator',
     'about.p1': "I'm a Computer Engineering student with a strong connection to technology from an early age, which sparked my interest in software development and building digital solutions. Throughout my journey, I've been developing solid skills in languages like Python and Java, applying them to practical projects involving logic, system design and application development.",
     'about.p2': "I particularly enjoy turning ideas into real projects, from management systems to apps with a proper interface. I also have experience with HTML, CSS and JavaScript to build functional interfaces. I'm a curious, hands-on person, driven by problem-solving.",
+    'proj.stintlab.desc': 'Real-time race engineering tool for Gran Turismo 7. Turns live telemetry into strategy insights: fuel, tyres and pit stops.',
     'proj.morph.desc': 'A fully-featured browser built with Electron, HTML and CSS. Custom UI, tab management and ad blocker built-in.',
     'proj.blender.desc': 'A Python script for Blender that lets you control any object (like a car) with arrow keys in real time.',
     'proj.calc.desc': 'A clean calculator built with Python and Tkinter. Created to practice GUI development and event-driven programming.',
@@ -640,6 +703,7 @@ const TRANSLATIONS = {
     'about.role': '// Programador & Criador',
     'about.p1': 'Sou estudante de Engenharia Informática, com uma forte ligação à tecnologia desde cedo, o que despertou o meu interesse pelo desenvolvimento de software e pela criação de soluções digitais. Ao longo do meu percurso, tenho vindo a desenvolver competências sólidas em linguagens como Python e Java, aplicando-as em projetos práticos que envolvem lógica, estruturação de sistemas e desenvolvimento de aplicações.',
     'about.p2': 'Gosto particularmente de transformar ideias em projetos reais, desde sistemas de gestão a aplicações com interface. Tenho também experiência com HTML, CSS e JavaScript para construir interfaces funcionais. Sou uma pessoa curiosa, prática e orientada para a resolução de problemas.',
+    'proj.stintlab.desc': 'Ferramenta de engenharia de corrida em tempo real para o Gran Turismo 7. Transforma telemetria em direto em estratégia: combustível, pneus e boxes.',
     'proj.morph.desc': 'Um browser completo construído com Electron, HTML e CSS. UI personalizada, gestão de separadores e bloqueador de anúncios incluído.',
     'proj.blender.desc': 'Um script Python para o Blender que permite controlar qualquer objeto (como um carro) com as setas do teclado em tempo real.',
     'proj.calc.desc': 'Uma calculadora simples construída com Python e Tkinter. Criada para praticar desenvolvimento de interfaces gráficas e programação orientada a eventos.',
@@ -677,7 +741,7 @@ function switchLang(lang){
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
 
-  if(currentModalId) openModal(currentModalId);
+  if(currentModalId) openModal(currentModalId, true);
 }
 
 switchLang(currentLang);
@@ -715,11 +779,68 @@ document.querySelector('.content').addEventListener('scroll',()=>{
   tabEls.forEach((t,i)=>{t.classList.toggle('active',i===active)});
 });
 
-/* ── MODAL DATA ── */
+/* ── MODAL DATA ──
+   Para adicionar prints: põe os ficheiros na mesma pasta do site e
+   acrescenta o nome ao array "screenshots" do projeto (ordem = ordem do player).
+   Ficheiros que não existam são ignorados automaticamente. */
 const PROJECTS = {
+  stintlab: {
+    title: 'StintLab',
+    screenshots: ['stintlab-setup.png','stintlab-pitwall.png'],
+    desc: {
+      en: `<p>StintLab is an open-source motorsport telemetry and race strategy app that brings a lightweight race-engineering workflow to sim racing. It is in active development and currently supports Gran Turismo 7.</p>
+<p>The app receives GT7 telemetry over the local network (UDP), decodes it in a Python telemetry service and streams it to an Electron desktop app over WebSocket. The architecture is platform-independent, so other simulators can be added over time.</p>
+<h4>Features</h4>
+<ul>
+  <li>Real-time UDP telemetry with automatic GT7 discovery</li>
+  <li>Telemetry packet decoding: lap and race info, tyres and driver inputs</li>
+  <li>Fuel strategy, pit-stop strategy and stint management</li>
+  <li>Pit-wall style views for the race engineer</li>
+  <li>Keyboard shortcuts</li>
+</ul>
+<h4>Roadmap</h4>
+<ul>
+  <li>Telemetry recording, session replay and historical analysis</li>
+  <li>Support for Assetto Corsa, ACC, F1 and other platforms</li>
+</ul>
+<p style="margin-top:12px"><a href="https://github.com/HHD-Pictures/StintLab" target="_blank" style="color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(125,211,252,0.3)">github.com/HHD-Pictures/StintLab</a></p>
+<h4>Technologies</h4>`,
+      pt: `<p>O StintLab é uma aplicação open-source de telemetria e estratégia de corrida que traz um fluxo de trabalho leve de engenharia de corrida para o sim racing. Está em desenvolvimento ativo e, de momento, suporta o Gran Turismo 7.</p>
+<p>A app recebe a telemetria do GT7 pela rede local (UDP), descodifica-a num serviço de telemetria em Python e envia-a para uma aplicação desktop em Electron através de WebSocket. A arquitetura é independente da plataforma, para que outros simuladores possam ser adicionados com o tempo.</p>
+<h4>Funcionalidades</h4>
+<ul>
+  <li>Telemetria UDP em tempo real com deteção automática do GT7</li>
+  <li>Descodificação dos pacotes: voltas e corrida, pneus e comandos do piloto</li>
+  <li>Estratégia de combustível, de boxes e gestão de stints</li>
+  <li>Vistas estilo pit wall para o engenheiro de corrida</li>
+  <li>Atalhos de teclado</li>
+</ul>
+<h4>Roadmap</h4>
+<ul>
+  <li>Gravação de telemetria, replay de sessões e análise histórica</li>
+  <li>Suporte para Assetto Corsa, ACC, F1 e outras plataformas</li>
+</ul>
+<p style="margin-top:12px"><a href="https://github.com/HHD-Pictures/StintLab" target="_blank" style="color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(125,211,252,0.3)">github.com/HHD-Pictures/StintLab</a></p>
+<h4>Tecnologias</h4>`
+    },
+    tags: ['Electron','Python','JavaScript','HTML','CSS','UDP','WebSocket','Git']
+  },
   morph: {
     title: 'Morph Browser',
-    screenshot: 'morph.png',
+    screenshots: [
+      'morph/01-novo-separador.png',
+      'morph/02-youtube.png',
+      'morph/03-spotify.png',
+      'morph/04-github-tabs-baixo.png',
+      'morph/05-awwwards-sidebar.png',
+      'morph/06-google-escuro.png',
+      'morph/07-google-2008.png',
+      'morph/08-novo-separador-sunset.png',
+      'morph/09-visao-geral.png',
+      'morph/10-aparencia.png',
+      'morph/11-layout.png',
+      'morph/12-definicoes-geral.png'
+    ],
     desc: {
       en: `<p>A browser built with Electron, created as a personal project to explore desktop application development with JavaScript.</p>
 <p>The main goal is to create a highly customizable browser that can adapt to the user's needs, while maintaining security and flexibility. The project is still in development.</p>
@@ -752,7 +873,7 @@ const PROJECTS = {
   },
   blender: {
     title: 'Drive-Car Add-on for Blender',
-    screenshot: null,
+    screenshots: [],
     desc: {
       en: `<p>A simple Python script for Blender that lets you control any object (like a car) with your arrow keys in real time inside the 3D Viewport.</p>
 <h4>Features</h4>
@@ -779,7 +900,7 @@ const PROJECTS = {
   },
   calc: {
     title: 'Tkinter Calculator',
-    screenshot: 'calculator.png',
+    screenshots: ['calculator.png'],
     desc: {
       en: `<p>A simple calculator built with Python and Tkinter GUI. This project was created as practice to learn Python's built-in GUI library and event-driven programming.</p>
 <h4>Features</h4>
@@ -804,24 +925,106 @@ const PROJECTS = {
   }
 };
 
-function openModal(id){
+/* ── GALLERY (mini image player) ── */
+const gal = { imgs: [], i: 0, token: 0 };
+
+function loadGallery(shots, startIndex){
+  const token = ++gal.token;
+  return Promise.all(shots.map(src => new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(src);
+    im.onerror = () => res(null);
+    im.src = src;
+  }))).then(list => {
+    if(token !== gal.token) return;           // modal mudou entretanto
+    gal.imgs = list.filter(Boolean);
+    gal.i = Math.max(0, Math.min(startIndex, gal.imgs.length - 1));
+    renderGallery();
+  });
+}
+
+function renderGallery(){
+  const slot = document.getElementById('gal-slot');
+  if(!slot) return;
+  const n = gal.imgs.length;
+  if(!n){ slot.innerHTML = ''; return; }
+  const multi = n > 1;
+  slot.innerHTML = `
+    <div class="gallery">
+      <div class="gal-stage" id="galStage">
+        <img class="gal-img" id="galImg" src="${gal.imgs[gal.i]}" alt="">
+        ${multi ? `<button class="gal-btn prev" aria-label="Previous" onclick="galGo(-1)">‹</button>
+        <button class="gal-btn next" aria-label="Next" onclick="galGo(1)">›</button>
+        <div class="gal-count" id="galCount"></div>` : ''}
+      </div>
+      ${multi ? `<div class="gal-thumbs" id="galThumbs">
+        ${gal.imgs.map((s,k)=>`<button class="gal-thumb" data-k="${k}" onclick="galShow(${k})"><img src="${s}" alt=""></button>`).join('')}
+      </div>` : ''}
+    </div>`;
+  galShow(gal.i, true);
+
+  if(multi){
+    const stage = document.getElementById('galStage');
+    let x0 = null;
+    stage.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, {passive:true});
+    stage.addEventListener('touchend', e => {
+      if(x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if(Math.abs(dx) > 40) galGo(dx < 0 ? 1 : -1);
+      x0 = null;
+    });
+  }
+}
+
+function galShow(k, instant){
+  const n = gal.imgs.length;
+  if(!n) return;
+  gal.i = ((k % n) + n) % n;
+  const img = document.getElementById('galImg');
+  if(img){
+    if(instant){ img.src = gal.imgs[gal.i]; }
+    else{
+      img.classList.add('swap');
+      setTimeout(()=>{ img.src = gal.imgs[gal.i]; img.classList.remove('swap'); }, 120);
+    }
+  }
+  const c = document.getElementById('galCount');
+  if(c) c.textContent = (gal.i + 1) + ' / ' + n;
+  document.querySelectorAll('.gal-thumb').forEach(t=>{
+    const on = +t.dataset.k === gal.i;
+    t.classList.toggle('active', on);
+    if(on) t.scrollIntoView({block:'nearest', inline:'center', behavior: instant ? 'auto' : 'smooth'});
+  });
+}
+function galGo(d){ galShow(gal.i + d); }
+
+function openModal(id, keepIndex){
   const p = PROJECTS[id];
   if(!p) return;
+  const startIndex = keepIndex ? gal.i : 0;
   currentModalId = id;
   document.getElementById('modal-title').textContent = p.title;
-  let html = '';
-  if(p.screenshot) html += `<img class="modal-screenshot" src="${p.screenshot}" alt="${p.title}">`;
+  const hasShots = p.screenshots && p.screenshots.length;
+  let html = hasShots ? '<div id="gal-slot"></div>' : '';
   html += `<div class="modal-desc">${p.desc[currentLang]}<div class="modal-tags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`;
   document.getElementById('modal-body').innerHTML = html;
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow='hidden';
+  if(hasShots) loadGallery(p.screenshots, startIndex);
 }
 function closeModal(){
   document.getElementById('modal').classList.remove('open');
   document.body.style.overflow='';
   currentModalId = null;
+  gal.token++; gal.imgs = []; gal.i = 0;
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeModal();
+  if(currentModalId && gal.imgs.length > 1){
+    if(e.key==='ArrowRight') galGo(1);
+    if(e.key==='ArrowLeft') galGo(-1);
+  }
+});
 
 </script>
 
